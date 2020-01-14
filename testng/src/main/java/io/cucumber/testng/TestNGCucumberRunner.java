@@ -26,6 +26,7 @@ import io.cucumber.core.runtime.TypeRegistryConfigurerSupplier;
 import io.cucumber.plugin.event.TestRunFinished;
 import io.cucumber.plugin.event.TestRunStarted;
 import io.cucumber.plugin.event.TestSourceRead;
+import java.util.Optional;
 import org.apiguardian.api.API;
 
 import java.time.Clock;
@@ -63,7 +64,7 @@ public final class TestNGCucumberRunner {
      * @param clazz Which has the {@link CucumberOptions}
      *              and {@link org.testng.annotations.Test} annotations
      */
-    public TestNGCucumberRunner(Class clazz) {
+    public TestNGCucumberRunner(Class clazz, Optional<ObjectFactorySupplier> customObjectFactorySupplier) {
         // Parse the options early to provide fast feedback about invalid options
         RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser()
             .parse(CucumberProperties.fromPropertiesFile())
@@ -89,11 +90,16 @@ public final class TestNGCucumberRunner {
         this.bus = new TimeServiceEventBus(Clock.systemUTC());
         this.plugins = new Plugins(new PluginFactory(), runtimeOptions);
         ObjectFactoryServiceLoader objectFactoryServiceLoader = new ObjectFactoryServiceLoader(runtimeOptions);
-        ObjectFactorySupplier objectFactorySupplier = new ThreadLocalObjectFactorySupplier(objectFactoryServiceLoader);
+        ObjectFactorySupplier objectFactorySupplier = customObjectFactorySupplier.orElseGet(
+            () -> new ThreadLocalObjectFactorySupplier(objectFactoryServiceLoader));
         BackendServiceLoader backendSupplier = new BackendServiceLoader(clazz::getClassLoader, objectFactorySupplier);
         this.filters = new Filters(runtimeOptions);
         TypeRegistryConfigurerSupplier typeRegistryConfigurerSupplier = new ScanningTypeRegistryConfigurerSupplier(classLoader, runtimeOptions);
         this.runnerSupplier = new ThreadLocalRunnerSupplier(runtimeOptions, bus, backendSupplier, objectFactorySupplier, typeRegistryConfigurerSupplier);
+    }
+
+    public TestNGCucumberRunner(Class<?> clazz){
+        this(clazz, Optional.empty());
     }
 
     public void runScenario(Pickle pickle) throws Throwable {
