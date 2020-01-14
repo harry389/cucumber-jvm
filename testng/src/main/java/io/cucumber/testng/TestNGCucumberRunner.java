@@ -52,6 +52,7 @@ public final class TestNGCucumberRunner {
 
     private final EventBus bus;
     private final Predicate<CucumberPickle> filters;
+    private final ObjectFactorySupplier objectFactorySupplier;
     private final ThreadLocalRunnerSupplier runnerSupplier;
     private final RuntimeOptions runtimeOptions;
     private final Plugins plugins;
@@ -89,7 +90,7 @@ public final class TestNGCucumberRunner {
         this.bus = new TimeServiceEventBus(Clock.systemUTC());
         this.plugins = new Plugins(new PluginFactory(), runtimeOptions);
         ObjectFactoryServiceLoader objectFactoryServiceLoader = new ObjectFactoryServiceLoader(runtimeOptions);
-        ObjectFactorySupplier objectFactorySupplier = new ThreadLocalObjectFactorySupplier(objectFactoryServiceLoader);
+        this.objectFactorySupplier = new ThreadLocalObjectFactorySupplier(objectFactoryServiceLoader);
         BackendServiceLoader backendSupplier = new BackendServiceLoader(clazz::getClassLoader, objectFactorySupplier);
         this.filters = new Filters(runtimeOptions);
         TypeRegistryConfigurerSupplier typeRegistryConfigurerSupplier = new ScanningTypeRegistryConfigurerSupplier(classLoader, runtimeOptions);
@@ -143,5 +144,9 @@ public final class TestNGCucumberRunner {
             bus.send(new TestSourceRead(bus.getInstant(), feature.getUri(), feature.getSource()));
         }
         return features;
+    }
+
+    public ObjectFactorySupplier getObjectFactorySupplier(){
+        return this.objectFactorySupplier;
     }
 }
