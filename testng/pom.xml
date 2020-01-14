@@ -6,10 +6,17 @@
         <artifactId>cucumber-jvm</artifactId>
         <version>5.0.0-RC3</version>
     </parent>
-
+    <groupId>com.github.harry389</groupId>
+    <version>5.0.4-RC3</version>
     <artifactId>cucumber-testng</artifactId>
     <packaging>jar</packaging>
     <name>Cucumber-JVM: TestNG</name>
+    <scm>
+        <tag>v5.0.4-RC3</tag>
+        <connection>scm:git:git://github.com/harry389/cucumber-jvm.git</connection>
+        <developerConnection>scm:git:git@github.com:harry389/cucumber-jvm.git</developerConnection>
+        <url>git://github.com/harry389/cucumber-jvm.git</url>
+    </scm>
 
     <properties>
         <project.Automatic-Module-Name>io.cucumber.testng</project.Automatic-Module-Name>
@@ -25,7 +32,47 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-core</artifactId>
+            <version>5.0.0-RC3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.cucumber</groupId>
+                    <artifactId>cucumber-gherkin</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.cucumber</groupId>
+                    <artifactId>cucumber-gherkin-vintage</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.cucumber</groupId>
+                    <artifactId>cucumber-plugin</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.cucumber</groupId>
+                    <artifactId>docstring</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-gherkin</artifactId>
+            <version>5.0.0-RC3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-gherkin-vintage</artifactId>
+            <version>5.0.0-RC3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-plugin</artifactId>
+            <version>5.0.0-RC3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>docstring</artifactId>
+            <version>5.0.0-RC3</version>
+        </dependency>
+
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -42,5 +89,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

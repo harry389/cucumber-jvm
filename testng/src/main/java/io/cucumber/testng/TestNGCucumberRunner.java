@@ -29,6 +29,7 @@ import io.cucumber.core.runtime.TypeRegistryConfigurerSupplier;
 import io.cucumber.plugin.event.TestRunFinished;
 import io.cucumber.plugin.event.TestRunStarted;
 import io.cucumber.plugin.event.TestSourceRead;
+import java.util.Optional;
 import org.apiguardian.api.API;
 
 import java.time.Clock;
@@ -105,6 +106,48 @@ public final class TestNGCucumberRunner {
         this.plugins = new Plugins(new PluginFactory(), runtimeOptions);
         ObjectFactoryServiceLoader objectFactoryServiceLoader = new ObjectFactoryServiceLoader(runtimeOptions);
         ObjectFactorySupplier objectFactorySupplier = new ThreadLocalObjectFactorySupplier(objectFactoryServiceLoader);
+        BackendServiceLoader backendSupplier = new BackendServiceLoader(clazz::getClassLoader, objectFactorySupplier);
+        this.filters = new Filters(runtimeOptions);
+        TypeRegistryConfigurerSupplier typeRegistryConfigurerSupplier = new ScanningTypeRegistryConfigurerSupplier(classLoader, runtimeOptions);
+        this.runnerSupplier = new ThreadLocalRunnerSupplier(runtimeOptions, bus, backendSupplier, objectFactorySupplier, typeRegistryConfigurerSupplier);
+    }
+
+
+    public TestNGCucumberRunner(Class<?> clazz, ObjectFactorySupplier objectFactorySupplier) {
+        // Parse the options early to provide fast feedback about invalid options
+        RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser()
+            .parse(CucumberProperties.fromPropertiesFile())
+            .build();
+
+        RuntimeOptions annotationOptions = new CucumberOptionsAnnotationParser()
+            .withOptionsProvider(new TestNGCucumberOptionsProvider())
+            .parse(clazz)
+            .build(propertiesFileOptions);
+
+        RuntimeOptions environmentOptions = new CucumberPropertiesParser()
+            .parse(CucumberProperties.fromEnvironment())
+            .build(annotationOptions);
+
+        this.runtimeOptions = new CucumberPropertiesParser()
+            .parse(CucumberProperties.fromSystemProperties())
+            .addDefaultSummaryPrinterIfAbsent()
+            .build(environmentOptions);
+
+        this.bus = new TimeServiceEventBus(Clock.systemUTC(), UUID::randomUUID);
+
+        if (!runtimeOptions.isStrict()) {
+            log.warn(() -> "By default Cucumber is running in --non-strict mode.\n" +
+                "This default will change to --strict and --non-strict will be removed.\n" +
+                "You can use --strict or @CucumberOptions(strict = true) to suppress this warning"
+            );
+        }
+
+        Supplier<ClassLoader> classLoader = ClassLoaders::getDefaultClassLoader;
+        FeatureParser parser = new FeatureParser(bus::generateId);
+        this.featureSupplier = new FeaturePathFeatureSupplier(classLoader, runtimeOptions, parser);
+
+        this.plugins = new Plugins(new PluginFactory(), runtimeOptions);
+        ObjectFactoryServiceLoader objectFactoryServiceLoader = new ObjectFactoryServiceLoader(runtimeOptions);
         BackendServiceLoader backendSupplier = new BackendServiceLoader(clazz::getClassLoader, objectFactorySupplier);
         this.filters = new Filters(runtimeOptions);
         TypeRegistryConfigurerSupplier typeRegistryConfigurerSupplier = new ScanningTypeRegistryConfigurerSupplier(classLoader, runtimeOptions);

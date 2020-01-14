@@ -34,6 +34,13 @@
             <organization>Cucumber</organization>
             <organizationUrl>https://github.com/cucumber</organizationUrl>
         </developer>
+        <developer>
+            <id>harry389</id>
+            <name>Hari Divyakotti</name>
+            <email>hari.divyakotti@gmail.com</email>
+            <organization>Cucumber</organization>
+            <organizationUrl>https://github.com/harry389</organizationUrl>
+        </developer>
     </developers>
 
 
@@ -60,10 +67,10 @@
         <groovy.version>2.5.5</groovy.version>
     </properties>
     <scm>
-        <connection>scm:git:git://github.com/cucumber/cucumber-jvm.git</connection>
-        <developerConnection>scm:git:git@github.com:cucumber/cucumber-jvm.git</developerConnection>
-        <url>git://github.com/cucumber/cucumber-jvm.git</url>
         <tag>v5.0.0-RC3</tag>
+        <connection>scm:git:git://github.com/harry389/cucumber-jvm.git</connection>
+        <developerConnection>scm:git:git@github.com:harry389/cucumber-jvm.git</developerConnection>
+        <url>git://github.com/harry389/cucumber-jvm.git</url>
     </scm>
 
     <dependencyManagement>
@@ -388,6 +395,46 @@
                     <groupId>org.eluder.coveralls</groupId>
                     <artifactId>coveralls-maven-plugin</artifactId>
                     <version>4.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.5</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
